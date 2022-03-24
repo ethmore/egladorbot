@@ -63,14 +63,12 @@ class Player(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    testServerId = 643857272216354866
-    egladorid = 340277764907204608
-    
+    guildID = [643857272216354866, 340277764907204608]
 
-    @nextcord.slash_command(name="play2", description="plays", guild_ids=[testServerId, egladorid])
+    @nextcord.slash_command(name="play2", description="plays", guild_ids=guildID)
     async def splay(self, interaction: Interaction):
         player_pause = PlayerPause()
-        #player_resume = PlayerResume()
+        # player_resume = PlayerResume()
         await interaction.response.send_message(view=player_pause)
         await player_pause.wait()
         player_resume = PlayerResume()
@@ -90,7 +88,7 @@ class Player(commands.Cog):
                 print("play")
                 voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
                 voice.resume()
-                #player_pause = PlayerPause()
+                # player_pause = PlayerPause()
                 await interaction.edit_original_message(view=player_pause)
                 await player_pause.wait()
                 return
@@ -147,7 +145,7 @@ class Player(commands.Cog):
 
                     if not voice.is_playing():  # Bot connected to a voice channel but not playing.
 
-                        if url.startswith("https://www.youtube.com/playlist?list"):  # Eger link playlist ise
+                        if url.startswith("https://www.youtube.com/playlist?list"):  # If link belongs to a playlist
                             audioCounter = 0
                             YDL_OPTIONS = {'format': 'bestaudio', 'extract_flat': 'in_playlist'}
                             with YoutubeDL(YDL_OPTIONS) as ydl:
@@ -239,7 +237,7 @@ class Player(commands.Cog):
             else:
                 await ctx.send("Join a channel first")
     """
-    @nextcord.slash_command(name="play", description="Plays audio via given link or keywords", guild_ids=[testServerId, egladorid])
+    @nextcord.slash_command(name="play", description="Plays audio via given link or keywords", guild_ids=guildID)
     async def play(self, interaction: Interaction, url):
         channel = self.client.get_channel(interaction.channel.id)
         if channel.name == 'bot-commands':
@@ -264,7 +262,7 @@ class Player(commands.Cog):
 
                     if not voice.is_playing():  # Bot connected to a voice channel but not playing.
 
-                        if url.startswith("https://www.youtube.com/playlist?list"):  # Eger link playlist ise
+                        if url.startswith("https://www.youtube.com/playlist?list"):  # If link belongs to a playlist
                             audioCounter = 0
                             YDL_OPTIONS = {'format': 'bestaudio', 'extract_flat': 'in_playlist'}
                             with YoutubeDL(YDL_OPTIONS) as ydl:
