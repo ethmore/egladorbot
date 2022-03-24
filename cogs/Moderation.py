@@ -14,10 +14,15 @@ class Moderation(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         channel = self.client.get_channel(message.channel.id)
-        if (channel.name != 'bot-commands' and message.content.startswith(commandPrefix)) or \
-                channel.name == 'bot-commands' and not message.content.startswith(commandPrefix):
+        if channel.name != 'bot-commands' and message.content.startswith(commandPrefix) and \
+            message.author != self.client.user:
             await message.delete()
-
+        
+        elif channel.name == 'bot-commands' and not message.content.startswith(commandPrefix) and \
+            message.author != self.client.user:
+            await message.delete()
+        
+        
     # Kick any member with or without a reason
     @commands.command(brief="Kick any member w/wout a reason")
     @commands.has_permissions(kick_members=True)
