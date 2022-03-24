@@ -2,5 +2,5 @@
 /shelf/
 /workspace.xml
 /venv
-/cogs/__pycache__
+/cogs/pycache
 /.idea
