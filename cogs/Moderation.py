@@ -14,7 +14,8 @@ class Moderation(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         channel = self.client.get_channel(message.channel.id)
-        if channel.name != 'bot-commands' and message.content.startswith(commandPrefix):
+        if (channel.name != 'bot-commands' and message.content.startswith(commandPrefix)) or \
+                channel.name == 'bot-commands' and not message.content.startswith(commandPrefix):
             await message.delete()
 
     # Kick any member with or without a reason
@@ -70,12 +71,12 @@ class Moderation(commands.Cog):
     # WIP Message delete command
     @commands.command(brief="[WIP] Deletes message", pass_context=True)
     async def delete(self, ctx):
-        author = ctx.message.author
+        # author = ctx.message.author
         await ctx.message.delete()
         await ctx.send("Deleted [WIP]")
 
-    @commands.command(pass_context = True)
-    @commands.has_permissions(manage_roles = True)
+    @commands.command(pass_context=True)
+    @commands.has_permissions(manage_roles=True)
     async def addRole(self, ctx, user: nextcord.Member, *, role: nextcord.Role):
         if role in user.roles:
             await ctx.send(f"{user.mention} already has the role, {role}")
@@ -88,15 +89,13 @@ class Moderation(commands.Cog):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("You do not have permission to use this command")
 
-
     # Test response
     @commands.command()
     async def test(self, ctx):
         channel = self.client.get_channel(ctx.channel.id)
         if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
-            #await ctx.send("Online!")
-            smiley = '\U0001F44D'
-            await ctx.message.add_reaction(smiley)
+            thumbsUp = '\U0001F44D'
+            await ctx.message.add_reaction(thumbsUp)
 
 
 def setup(client):
