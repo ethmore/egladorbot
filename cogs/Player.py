@@ -8,12 +8,7 @@ from youtubesearchpython import VideosSearch
 
 queues = {}
 commandPrefix = '.'
-# testline
-# testline
-# testline
-# testline
-# testline
-# testline
+
 
 def checkQueue(ctx, id):
     if queues[id]:
