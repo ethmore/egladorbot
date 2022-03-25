@@ -1,10 +1,7 @@
 import nextcord
 from nextcord.ext import commands
-
-# from nextcord.ext.commands import has_permissions
 from nextcord.ext.commands import MissingPermissions
-
-commandPrefix = '.'
+import config
 
 
 class Moderation(commands.Cog):
@@ -13,22 +10,34 @@ class Moderation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        config.allowMessages = False
         channel = self.client.get_channel(message.channel.id)
-        if channel.name != 'bot-commands' and message.content.startswith(commandPrefix) and \
-            message.author != self.client.user:
-            await message.delete()
-        
-        elif channel.name == 'bot-commands' and not message.content.startswith(commandPrefix) and \
-            message.author != self.client.user:
-            await message.delete()
-        
-        
+
+        if config.channelSelectivity is True:   # Channel selectivity check
+            if channel.name == config.selectedChannel:
+                if message.content.startswith(config.commandPrefix):
+                    config.allowMessages = True  # Channel and prefix is correct
+                elif not message.content.startswith(config.commandPrefix) and message.author != self.client.user:
+                    await message.delete()  # Channel is correct but prefix WRONG and message NOT belongs to the bot
+            elif channel.name != config.selectedChannel and message.content.startswith(config.commandPrefix) and message.author != self.client.user:
+                await message.delete()  # Channel is WRONG and prefix is correct and message NOT belongs to the bot
+
+        elif config.channelSelectivity is False:
+            config.allowMessages = True
+        else:
+            config.allowMessages = False
+
+    # Test response
+    @commands.command()
+    async def test(self, ctx):
+        if config.allowMessages is True:
+            await ctx.message.add_reaction('\U0001F44D')  # Thumbs up
+
     # Kick any member with or without a reason
     @commands.command(brief="Kick any member w/wout a reason")
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: nextcord.Member, *, reason=None):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        if config.allowMessages is True:
             try:
                 await member.kick(reason=reason)
                 await ctx.send(f'User **{member}** has been kicked by **{ctx.author}**! Reason: **{reason}**')
@@ -45,8 +54,7 @@ class Moderation(commands.Cog):
     @commands.command(brief="Ban any member w/wout a reason")
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: nextcord.Member, *, reason=None):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        if config.allowMessages is True:
             try:
                 await member.ban(reason=reason)
                 await ctx.send(f'User **{member}** has been banned by **{ctx.author}**! Reason: **{reason}**')
@@ -62,8 +70,7 @@ class Moderation(commands.Cog):
     # DM Welcome message
     @commands.command(brief="DM Welcome to the tagged member")
     async def dm(self, ctx, user: nextcord.Member, *, message=None):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        if config.allowMessages is True:
             message = "Welcome to the server!"
             embed = nextcord.Embed(title=message)
             await user.send(embed=embed)
@@ -71,7 +78,7 @@ class Moderation(commands.Cog):
     @dm.error
     async def dmError(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f'```Wrong syntax. Proper usage: {commandPrefix}dm @MEMBER```')
+            await ctx.send(f'```Proper usage: {config.commandPrefix}dm @MEMBER```')
 
     # WIP Message delete command
     @commands.command(brief="[WIP] Deletes message", pass_context=True)
@@ -93,14 +100,6 @@ class Moderation(commands.Cog):
     async def roleError(self, ctx, error):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("You do not have permission to use this command")
-
-    # Test response
-    @commands.command()
-    async def test(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
-            thumbsUp = '\U0001F44D'
-            await ctx.message.add_reaction(thumbsUp)
 
 
 def setup(client):
