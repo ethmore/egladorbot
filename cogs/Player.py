@@ -404,13 +404,20 @@ class Player(commands.Cog):
     # Play Enter the East
     @commands.command(brief="Taste of music", pass_context=True)
     async def ete(self, ctx):
+        YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
+        FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+
         if ctx.author.voice:
             if config.allowMessages is True:
                 await ctx.send("Taste of music!")
                 channel = ctx.message.author.voice.channel
                 voice = await channel.connect()
-                source = FFmpegPCMAudio('ete.mp3')
-                voice.play(source)
+                with YoutubeDL(YDL_OPTIONS) as ydl:
+                    info = ydl.extract_info('https://www.youtube.com/watch?v=bn1YCClRF-g', download=False)
+                URL = info['formats'][0]['url']
+                source = await nextcord.FFmpegOpusAudio.from_probe(URL, **FFMPEG_OPTIONS)
+                voice.play(source, after=lambda x=None: checkQueue(ctx, ctx.message.guild.id))
+                voice.is_playing()
 
 
 def setup(client):
