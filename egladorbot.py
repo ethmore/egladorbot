@@ -1,21 +1,21 @@
 from __future__ import unicode_literals
-# from aiohttp import request
 import nextcord
 from nextcord import Interaction
 from nextcord.ext import commands
 import os
 from keys import *  # Bot & API Keys
+import config
+
 
 intents = nextcord.Intents.default()
 intents.members = True
-commandPrefix = '.'
-client = commands.Bot(command_prefix=commandPrefix, intents=intents)
+client = commands.Bot(command_prefix=config.commandPrefix, intents=intents)
 
 
 # Bot Startup
 @client.event
 async def on_ready():
-    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=f"Itself. {commandPrefix}help"))
+    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=f"Itself. {config.commandPrefix}help"))
     print('Logged in as {0.user}'.format(client))
 
 initialExtensions = []
@@ -29,16 +29,18 @@ if __name__ == '__main__':
         client.load_extension(extension)
 
 
-#Command error catch
+# Command error catch
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
-        await ctx.send("You don't have permission to run this command")
+        await ctx.send("```You don't have permission to run this command```")
     elif isinstance(error, commands.MissingRequiredArgument):
-        #await ctx.send('```Wrong syntax.```')
+        # await ctx.send('```Missing Argument.```')
         pass
-    else:
-        await ctx.send(f"`There's no such command. Type {commandPrefix}help for all commands`")
+    elif isinstance(error, commands.CommandNotFound):
+        await ctx.message.delete()
+        # await ctx.send(f"`There's no such command. Type {config.commandPrefix}help for all commands`")
+
  
 client.run(TOKEN)
 
@@ -46,7 +48,6 @@ client.run(TOKEN)
 # Üye karşılama geliştirilecek
 # Tepki/Emoji response
 # Levelling
-# Hatalı komut silme
 
 # Auto moderation
 #       forbidden words
@@ -73,6 +74,8 @@ client.run(TOKEN)
 # DONE - yt search
 # DONE - playlist play
 # DONE - auto delete forbidden channel messages
+# DONE - Hatalı komut silme
+
 
 # Error catch
 
