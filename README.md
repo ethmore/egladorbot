@@ -1,2 +1,2 @@
 # egladorbot
-a Discord bot for "Eglador" guild
+Test bot for Main bot
