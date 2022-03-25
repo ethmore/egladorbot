@@ -28,7 +28,7 @@ if __name__ == '__main__':
     for extension in initialExtensions:
         client.load_extension(extension)
 
-""" 
+
 #Command error catch
 @client.event
 async def on_command_error(ctx, error):
@@ -38,14 +38,15 @@ async def on_command_error(ctx, error):
         #await ctx.send('```Wrong syntax.```')
         pass
     else:
-        await ctx.send(f"`There's no such command. Type {commandPrefix}helpall for all commands`")
- """
+        await ctx.send(f"`There's no such command. Type {commandPrefix}help for all commands`")
+ 
 client.run(TOKEN)
 
 # auto kick/ban
 # Üye karşılama geliştirilecek
 # Tepki/Emoji response
 # Levelling
+# Hatalı komut silme
 
 # Auto moderation
 #       forbidden words
