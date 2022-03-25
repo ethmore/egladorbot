@@ -1,9 +1,7 @@
 import nextcord
 from nextcord.ext import commands
 from nextcord import Interaction
-
-commandPrefix = '.'
-testServerId = 643857272216354866
+import config
 
 
 class Other(commands.Cog):
@@ -13,16 +11,14 @@ class Other(commands.Cog):
     # Basic embed message. Includes: Author and avatar, Linked title, Description
     @commands.command(brief="Basic embedded message test")
     async def basicembed(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        if config.allowMessages is True:
             embed = nextcord.Embed(title="Başlık ve link", url="https://google.com", description="Açıklama", color=0x4dff4d)
             embed.set_author(name=ctx.author.display_name, url="https://fredboat.com/dashboard", icon_url=ctx.author.avatar_url)
             await ctx.send(embed=embed)
 
     @commands.command(brief="Advanced embedded message test")
     async def embedtest(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        if config.allowMessages is True:
             embed = nextcord.Embed(title="Başlık ve link", url="https://eglador.com", description="Açıklama", color=0x4dff4d)
             # embed.set_author(name=ctx.author.display_name, url="https://fredboat.com/dashboard", icon_url=ctx.author.avatar_url)
             embed.set_thumbnail(url="https://images.pexels.com/photos/2832432/pexels-photo-2832432.png?auto=compress&cs=tinysrgb&dpr=1&w=500")
@@ -35,8 +31,7 @@ class Other(commands.Cog):
     async def customembed(self, ctx, Title=None, TitleUrl="https://title.link", Description=None,
                           ThumbnailUrl="https://thumbnail.link",
                           FieldTitle=None, FieldDescription=None, Footer=None):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        if config.allowMessages is True:
             embed = nextcord.Embed(title=Title, url=TitleUrl, description=Description, color=0x4dff4d)
             # embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
             embed.set_thumbnail(url=ThumbnailUrl)
@@ -53,10 +48,6 @@ class Other(commands.Cog):
     async def on_reaction_remove(self, reaction, user):
         channel = reaction.message.channel
         print(f"{user.name} removed {reaction.emoji}")
-
-    @nextcord.slash_command(name="oest", description="Slash online test", guild_ids=[])
-    async def scog(self, interaction: Interaction):
-        await interaction.response.send_message("pong")
 
 
 def setup(client):
