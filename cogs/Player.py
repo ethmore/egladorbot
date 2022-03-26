@@ -1,13 +1,12 @@
 import nextcord
 from nextcord import Interaction
 from nextcord.ext import commands
-# from numpy import source
 from youtube_dl import *
 from nextcord import FFmpegPCMAudio
 from youtubesearchpython import VideosSearch
+import config
 
 queues = {}
-commandPrefix = '.'
 
 
 def checkQueue(ctx, id):
@@ -63,9 +62,7 @@ class Player(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    guildID = [643857272216354866, 340277764907204608]
-
-    @nextcord.slash_command(name="play2", description="plays", guild_ids=guildID)
+    @nextcord.slash_command(name="play2", description="plays", guild_ids=config.guildID)
     async def splay(self, interaction: Interaction):
         player_pause = PlayerPause()
         # player_resume = PlayerResume()
@@ -96,8 +93,8 @@ class Player(commands.Cog):
     # Join a voice channel
     @commands.command(brief="Connects to a voice channel", pass_context=True)
     async def join(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
             if ctx.author.voice:
                 channel = ctx.message.author.voice.channel
                 await channel.connect()
@@ -109,8 +106,8 @@ class Player(commands.Cog):
     # Leave the voice channel
     @commands.command(brief="Disconnects from the voice channel", pass_context=True)
     async def leave(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
             if ctx.voice_client:
                 await ctx.guild.voice_client.disconnect()
                 await ctx.send("Disconnected from the channel")
@@ -122,8 +119,8 @@ class Player(commands.Cog):
     # WIP - connect play, queue, resume
     @commands.command(brief="Resumes, Starts")
     async def play(self, ctx, url=None):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
             if ctx.author.voice:
                 YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
                 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
@@ -239,8 +236,8 @@ class Player(commands.Cog):
     """
     @nextcord.slash_command(name="play", description="Plays audio via given link or keywords", guild_ids=guildID)
     async def play(self, interaction: Interaction, url):
-        channel = self.client.get_channel(interaction.channel.id)
-        if channel.name == 'bot-commands':
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
             if interaction.user.voice:
                 YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
                 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
@@ -358,8 +355,8 @@ class Player(commands.Cog):
     # Pauses the player
     @commands.command(brief="Pauses the audio")
     async def pause(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             if voice.is_playing():
                 voice.pause()
@@ -369,8 +366,8 @@ class Player(commands.Cog):
     # Resumes the player
     @commands.command(brief="Resumes the audio")
     async def resume(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             if voice.is_paused():
                 voice.resume()
@@ -380,8 +377,8 @@ class Player(commands.Cog):
     # Skips the current audio
     @commands.command(brief="Skips the current audio")
     async def skip(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             if voice.is_playing():
                 try:
@@ -398,8 +395,8 @@ class Player(commands.Cog):
     # Stops the player
     @commands.command(brief="Stops the audio")
     async def stop(self, ctx):
-        channel = self.client.get_channel(ctx.channel.id)
-        if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             if voice is None:
                 await ctx.send("Bot is not in a voice channel")
@@ -415,14 +412,21 @@ class Player(commands.Cog):
     # Play Enter the East
     @commands.command(brief="Taste of music", pass_context=True)
     async def ete(self, ctx):
+        YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
+        FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+
         if ctx.author.voice:
-            channel = self.client.get_channel(ctx.channel.id)
-            if channel.name == 'bot-commands' and ctx.prefix is commandPrefix:
+            await config.allowMsg(ctx.message)
+            if config.allowMessages is True:
                 await ctx.send("Taste of music!")
                 channel = ctx.message.author.voice.channel
                 voice = await channel.connect()
-                source = FFmpegPCMAudio('ete.mp3')
-                voice.play(source)
+                with YoutubeDL(YDL_OPTIONS) as ydl:
+                    info = ydl.extract_info('https://www.youtube.com/watch?v=bn1YCClRF-g', download=False)
+                URL = info['formats'][0]['url']
+                source = await nextcord.FFmpegOpusAudio.from_probe(URL, **FFMPEG_OPTIONS)
+                voice.play(source, after=lambda x=None: checkQueue(ctx, ctx.message.guild.id))
+                voice.is_playing()
 
 
 def setup(client):
