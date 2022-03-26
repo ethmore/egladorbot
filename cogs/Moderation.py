@@ -10,26 +10,23 @@ class Moderation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        config.allowMessages = False
+        # config.allowMessages = True
         channel = self.client.get_channel(message.channel.id)
 
         if config.channelSelectivity is True:   # Channel selectivity check
-            if channel.name == config.selectedChannel:
-                if message.content.startswith(config.commandPrefix):
-                    config.allowMessages = True  # Channel and prefix is correct
-                elif not message.content.startswith(config.commandPrefix) and message.author != self.client.user:
-                    await message.delete()  # Channel is correct but prefix WRONG and message NOT belongs to the bot
+            if channel.name == config.selectedChannel and not message.content.startswith(config.commandPrefix) and message.author != self.client.user:
+                await message.delete()  # Channel is correct but prefix WRONG and message NOT belongs to the bot
+                config.allowMessages = False
             elif channel.name != config.selectedChannel and message.content.startswith(config.commandPrefix) and message.author != self.client.user:
                 await message.delete()  # Channel is WRONG and prefix is correct and message NOT belongs to the bot
-
-        elif config.channelSelectivity is False:
-            config.allowMessages = True
+                config.allowMessages = False
         else:
             config.allowMessages = False
 
     # Test response
     @commands.command()
     async def test(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             await ctx.message.add_reaction('\U0001F44D')  # Thumbs up
 
@@ -37,6 +34,7 @@ class Moderation(commands.Cog):
     @commands.command(brief="Kick any member w/wout a reason")
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: nextcord.Member, *, reason=None):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             try:
                 await member.kick(reason=reason)
@@ -54,6 +52,7 @@ class Moderation(commands.Cog):
     @commands.command(brief="Ban any member w/wout a reason")
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: nextcord.Member, *, reason=None):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             try:
                 await member.ban(reason=reason)
@@ -70,6 +69,7 @@ class Moderation(commands.Cog):
     # DM Welcome message
     @commands.command(brief="DM Welcome to the tagged member")
     async def dm(self, ctx, user: nextcord.Member, *, message=None):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             message = "Welcome to the server!"
             embed = nextcord.Embed(title=message)
