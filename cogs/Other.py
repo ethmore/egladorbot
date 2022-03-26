@@ -11,6 +11,7 @@ class Other(commands.Cog):
     # Basic embed message. Includes: Author and avatar, Linked title, Description
     @commands.command(brief="Basic embedded message test")
     async def basicembed(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             embed = nextcord.Embed(title="Başlık ve link", url="https://google.com", description="Açıklama", color=0x4dff4d)
             embed.set_author(name=ctx.author.display_name, url="https://fredboat.com/dashboard", icon_url=ctx.author.avatar_url)
@@ -18,6 +19,7 @@ class Other(commands.Cog):
 
     @commands.command(brief="Advanced embedded message test")
     async def embedtest(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             embed = nextcord.Embed(title="Başlık ve link", url="https://eglador.com", description="Açıklama", color=0x4dff4d)
             # embed.set_author(name=ctx.author.display_name, url="https://fredboat.com/dashboard", icon_url=ctx.author.avatar_url)
@@ -31,6 +33,7 @@ class Other(commands.Cog):
     async def customembed(self, ctx, Title=None, TitleUrl="https://title.link", Description=None,
                           ThumbnailUrl="https://thumbnail.link",
                           FieldTitle=None, FieldDescription=None, Footer=None):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             embed = nextcord.Embed(title=Title, url=TitleUrl, description=Description, color=0x4dff4d)
             # embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
