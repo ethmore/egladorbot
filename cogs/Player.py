@@ -93,6 +93,7 @@ class Player(commands.Cog):
     # Join a voice channel
     @commands.command(brief="Connects to a voice channel", pass_context=True)
     async def join(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             if ctx.author.voice:
                 channel = ctx.message.author.voice.channel
@@ -105,6 +106,7 @@ class Player(commands.Cog):
     # Leave the voice channel
     @commands.command(brief="Disconnects from the voice channel", pass_context=True)
     async def leave(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             if ctx.voice_client:
                 await ctx.guild.voice_client.disconnect()
@@ -117,6 +119,7 @@ class Player(commands.Cog):
     # WIP - connect play, queue, resume
     @commands.command(brief="Resumes, Starts")
     async def play(self, ctx, url=None):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             if ctx.author.voice:
                 YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
@@ -233,6 +236,7 @@ class Player(commands.Cog):
     """
     @nextcord.slash_command(name="play", description="Plays audio via given link or keywords", guild_ids=guildID)
     async def play(self, interaction: Interaction, url):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             if interaction.user.voice:
                 YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
@@ -351,6 +355,7 @@ class Player(commands.Cog):
     # Pauses the player
     @commands.command(brief="Pauses the audio")
     async def pause(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             if voice.is_playing():
@@ -361,6 +366,7 @@ class Player(commands.Cog):
     # Resumes the player
     @commands.command(brief="Resumes the audio")
     async def resume(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             if voice.is_paused():
@@ -371,6 +377,7 @@ class Player(commands.Cog):
     # Skips the current audio
     @commands.command(brief="Skips the current audio")
     async def skip(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             if voice.is_playing():
@@ -388,6 +395,7 @@ class Player(commands.Cog):
     # Stops the player
     @commands.command(brief="Stops the audio")
     async def stop(self, ctx):
+        await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             if voice is None:
@@ -408,6 +416,7 @@ class Player(commands.Cog):
         FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 
         if ctx.author.voice:
+            await config.allowMsg(ctx.message)
             if config.allowMessages is True:
                 await ctx.send("Taste of music!")
                 channel = ctx.message.author.voice.channel
