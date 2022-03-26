@@ -41,7 +41,7 @@ async def on_command_error(ctx, error):
         await ctx.message.delete()
         # await ctx.send(f"`There's no such command. Type {config.commandPrefix}help for all commands`")
 
- 
+
 client.run(TOKEN)
 
 # auto kick/ban
