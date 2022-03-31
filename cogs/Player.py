@@ -118,8 +118,12 @@ class Player(commands.Cog):
 
     # WIP - connect play, queue, resume
     @commands.command(brief="Resumes, Starts")
-    async def play(self, ctx, url=None):
+    async def play(self, ctx, *args):
         await config.allowMsg(ctx.message)
+        url = ""
+        for keyword in args:
+            url = url + keyword + " "
+
         if config.allowMessages is True:
             if ctx.author.voice:
                 YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
@@ -134,7 +138,7 @@ class Player(commands.Cog):
                     await ctx.send(f'Connected to ``{vc}``')
                     voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-                if url is not None:  # URL Parameter provided
+                if url != "":  # URL Parameter provided
                     if not url.startswith("https:"):
                         videosSearch = VideosSearch(url, limit=1)
                         res = videosSearch.result()
