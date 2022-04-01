@@ -10,15 +10,14 @@ class Moderation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        # config.allowMessages = True
         channel = self.client.get_channel(message.channel.id)
 
         if config.channelSelectivity is True:   # Channel selectivity check
             if channel.name == config.selectedChannel and not message.content.startswith(config.commandPrefix) and message.author != self.client.user:
-                await message.delete()  # Channel is correct but prefix WRONG and message NOT belongs to the bot
+                await message.delete()  # Channel TRUE, prefix FALSE, message NOT belongs to the bot
                 config.allowMessages = False
             elif channel.name != config.selectedChannel and message.content.startswith(config.commandPrefix) and message.author != self.client.user:
-                await message.delete()  # Channel is WRONG and prefix is correct and message NOT belongs to the bot
+                await message.delete()  # Channel FALSE, prefix TRUE, message NOT belongs to the bot
                 config.allowMessages = False
         else:
             config.allowMessages = False
@@ -28,9 +27,20 @@ class Moderation(commands.Cog):
     async def test(self, ctx):
         await config.allowMsg(ctx.message)
         if config.allowMessages is True:
-            await ctx.message.add_reaction('\U0001F44D')  # Thumbs up
+            await ctx.message.add_reaction('\U0001F44D')  # Thumbs up emoji
 
-    # Kick any member with or without a reason
+    @commands.command(brief="Re Define command prefix")
+    async def prefix(self, ctx, new_prefix):
+        await config.allowMsg(ctx.message)
+        if config.allowMessages is True:
+            old_db_prefix = {"prefix": f"{ctx.prefix}"}
+            new_db_prefix = {"$set": {"prefix": f"{new_prefix}"}}
+            config.db_collection.update_one(old_db_prefix, new_db_prefix)
+            # config.reload_extensions()
+            await config.update_bot_configs()
+            # await config.client.process_commands(ctx.message)
+            await ctx.send(f"```New prefix for bot is '{new_prefix}'``")
+
     @commands.command(brief="Kick any member w/wout a reason")
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: nextcord.Member, *, reason=None):
@@ -42,13 +52,11 @@ class Moderation(commands.Cog):
             except nextcord.Forbidden:
                 await ctx.send(f"I don't have permission to kick **{member}**")
 
-    # Kick error catch
     @kick.error
     async def kickError(self, ctx, error):
         if isinstance(error, MissingPermissions):
             await ctx.send("You don't have permission to kick people!")
 
-    # Ban any member with or without a reason
     @commands.command(brief="Ban any member w/wout a reason")
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: nextcord.Member, *, reason=None):
@@ -60,13 +68,11 @@ class Moderation(commands.Cog):
             except nextcord.Forbidden:
                 await ctx.send(f"I don't have permission to ban **{member}**")
 
-    # Ban error catch
     @ban.error
     async def banError(self, ctx, error):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("You don't have permission to ban people!")
 
-    # DM Welcome message
     @commands.command(brief="DM Welcome to the tagged member")
     async def dm(self, ctx, user: nextcord.Member, *, message=None):
         await config.allowMsg(ctx.message)
@@ -80,7 +86,7 @@ class Moderation(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f'```Proper usage: {config.commandPrefix}dm @MEMBER```')
 
-    # WIP Message delete command
+    # WIP - WIP - WIP - WIP - WIP - WIP
     @commands.command(brief="[WIP] Deletes message", pass_context=True)
     async def delete(self, ctx):
         # author = ctx.message.author
