@@ -64,6 +64,7 @@ class PlayerPause(nextcord.ui.View):
 class Player(commands.Cog):
     def __init__(self, client):
         self.client = client
+
     """
     @nextcord.slash_command(name="play2", description="plays", guild_ids=config.guildID)
     async def splay(self, interaction: Interaction):
@@ -100,6 +101,16 @@ class Player(commands.Cog):
                 channel = interaction.user.voice.channel
                 await channel.connect()
                 await interaction.send(f'Connected to ``{channel}``')
+
+                voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
+                while voice.is_playing():  # Checks if voice is playing
+                    await asyncio.sleep(30)  # While it's playing it sleeps for 1 second
+                else:
+                    await asyncio.sleep(60)  # If it's not playing it waits 15 seconds
+                    while voice.is_playing():  # and checks once again if the bot is not playing
+                        break  # if it's playing it breaks
+                    else:
+                        await voice.disconnect()  # if not it disconnects
 
             else:
                 await interaction.send("Already connected to a voice channel")
@@ -232,7 +243,7 @@ class Player(commands.Cog):
             while voice.is_playing():  # Checks if voice is playing
                 await asyncio.sleep(1)  # While it's playing it sleeps for 1 second
             else:
-                await asyncio.sleep(15)  # If it's not playing it waits 15 seconds
+                await asyncio.sleep(60)  # If it's not playing it waits 15 seconds
                 while voice.is_playing():  # and checks once again if the bot is not playing
                     break  # if it's playing it breaks
                 else:
@@ -312,9 +323,20 @@ class Player(commands.Cog):
         await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             if ctx.author.voice:
+
                 channel = ctx.message.author.voice.channel
                 await channel.connect()
                 await ctx.send(f'Connected to ``{channel}``')
+                voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+
+                while voice.is_playing():  # Checks if voice is playing
+                    await asyncio.sleep(30)  # While it's playing it sleeps for 1 second
+                else:
+                    await asyncio.sleep(60)  # If it's not playing it waits 15 seconds
+                    while voice.is_playing():  # and checks once again if the bot is not playing
+                        break  # if it's playing it breaks
+                    else:
+                        await voice.disconnect()  # if not it disconnects
 
     # Leave the voice channel
     @commands.command(brief="Disconnects from the voice channel", pass_context=True)
@@ -451,7 +473,7 @@ class Player(commands.Cog):
                 while voice.is_playing():  # Checks if voice is playing
                     await asyncio.sleep(1)  # While it's playing it sleeps for 1 second
                 else:
-                    await asyncio.sleep(15)  # If it's not playing it waits 15 seconds
+                    await asyncio.sleep(60)  # If it's not playing it waits 15 seconds
                     while voice.is_playing():  # and checks once again if the bot is not playing
                         break  # if it's playing it breaks
                     else:
