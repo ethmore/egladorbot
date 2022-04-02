@@ -1,6 +1,6 @@
 # egladorbot
 A Discord bot for "Eglador" guild
-test
+
 -TO-DO-
 
     Auto kick/ban

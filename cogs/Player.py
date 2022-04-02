@@ -93,7 +93,7 @@ class Player(commands.Cog):
                 return
     """
     @nextcord.slash_command(name="join", description="Connects to a voice channel", guild_ids=config.guildID)
-    async def join(self, interaction: Interaction):
+    async def slash_join(self, interaction: Interaction):
         if interaction.user.voice.channel:
             if not interaction.guild.voice_client:
                 channel = interaction.user.voice.channel
@@ -108,7 +108,7 @@ class Player(commands.Cog):
             await interaction.send("Join a voice channel first")
 
     @nextcord.slash_command(name="leave", description="Disconnects from the voice channel", guild_ids=config.guildID)
-    async def leave(self, interaction: Interaction):
+    async def slash_leave(self, interaction: Interaction):
         if interaction.guild.voice_client:
             await interaction.guild.voice_client.disconnect(force=True)
             await interaction.send("Disconnected from the channel")
@@ -116,7 +116,7 @@ class Player(commands.Cog):
             await interaction.send("Not in a voice channel")
 
     @nextcord.slash_command(name="play", description="Plays audio via given link or keywords", guild_ids=config.guildID)
-    async def play(self, interaction: Interaction, input):
+    async def slash_play(self, interaction: Interaction, input):
         if interaction.user.voice.channel:
             YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
             FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
@@ -232,7 +232,7 @@ class Player(commands.Cog):
             await interaction.send("Join a channel first")
 
     @nextcord.slash_command(name="pause", description="Pauses the audio", guild_ids=config.guildID)
-    async def pause(self, interaction: Interaction):
+    async def slash_pause(self, interaction: Interaction):
         voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
         if voice.is_playing():
             voice.pause()
@@ -241,7 +241,7 @@ class Player(commands.Cog):
             await interaction.send("There's no audio playing")
 
     @nextcord.slash_command(name="resume", description="Resumes the audio", guild_ids=config.guildID)
-    async def resume(self, interaction: Interaction):
+    async def slash_resume(self, interaction: Interaction):
         voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
         if voice.is_paused():
             voice.resume()
@@ -250,7 +250,7 @@ class Player(commands.Cog):
             await interaction.send("There's no audio that paused!")
 
     @nextcord.slash_command(name="skip", description="Skips the current audio", guild_ids=config.guildID)
-    async def skip(self, interaction: Interaction):
+    async def slash_skip(self, interaction: Interaction):
         voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
         if voice.is_playing():
             try:
@@ -265,7 +265,7 @@ class Player(commands.Cog):
             await interaction.send("There's no audio playing!")
 
     @nextcord.slash_command(name="stop", description="Stops the audio", guild_ids=config.guildID)
-    async def stop(self, interaction: Interaction):
+    async def slash_stop(self, interaction: Interaction):
         voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
         if voice is None:
             await interaction.send("Bot is not in a voice channel")
@@ -279,7 +279,7 @@ class Player(commands.Cog):
             await interaction.send("There's no audio playing")
 
     @nextcord.slash_command(name="ete", description="Taste of music", guild_ids=config.guildID)
-    async def ete(self, interaction: Interaction):
+    async def slash_ete(self, interaction: Interaction):
         YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
         FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 
@@ -295,6 +295,7 @@ class Player(commands.Cog):
             voice.is_playing()
 
     # Prefix commands
+
     # Join a voice channel
     @commands.command(brief="Connects to a voice channel", pass_context=True)
     async def join(self, ctx):
