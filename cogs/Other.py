@@ -1,10 +1,10 @@
 # import nextcord
-# from nextcord.ext import commands
+from nextcord.ext import commands
 # from nextcord import Interaction
 # import config
 
 
-class Other:
+class Other(commands.Cog):
     def __init__(self, client):
         self.client = client
 
