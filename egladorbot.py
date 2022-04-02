@@ -14,7 +14,7 @@ import config
 # Bot Startup
 @config.client.event
 async def on_ready():
-    await config.client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=f"Migrating to slash commands"))
+    await config.client.change_presence(activity=nextcord.Streaming(name="Slash commands", url=""))
     print('Logged in as {0.user}'.format(config.client))
 
 
