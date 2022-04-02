@@ -33,19 +33,19 @@ for x in db_collection.find({"_id": 1}):
     client = commands.Bot(command_prefix=commandPrefix, intents=intents)
 
 
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        initialExtensions.append("cogs." + filename[:-3])
-
-
-def load_extensions():
-    for extension in initialExtensions:
-        client.load_extension(extension)
-
-
-def reload_extensions():
-    for extension in initialExtensions:
-        client.reload_extension(extension)
+# for filename in os.listdir('./cogs'):
+#     if filename.endswith('.py'):
+#         initialExtensions.append("cogs." + filename[:-3])
+#
+#
+# def load_extensions():
+#     for extension in initialExtensions:
+#         client.load_extension(extension)
+#
+#
+# def reload_extensions():
+#     for extension in initialExtensions:
+#         client.reload_extension(extension)
 
 
 async def allowMsg(message):

@@ -1,34 +1,32 @@
-import nextcord
-from nextcord.ext import commands
-from nextcord import Interaction
-import config
+# import nextcord
+# from nextcord.ext import commands
+# from nextcord import Interaction
+# import config
 
 
-class Other(commands.Cog):
+class Other:
     def __init__(self, client):
         self.client = client
 
-    # Basic embed message. Includes: Author and avatar, Linked title, Description
-    @commands.command(brief="Basic embedded message test")
-    async def basicembed(self, ctx):
+    # Reserved for automated usage
+    """
+    @commands.command(brief="DM Welcome to the tagged member")
+    async def dm(self, ctx, user: nextcord.Member, *, message=None):
         await config.allowMsg(ctx.message)
         if config.allowMessages is True:
-            embed = nextcord.Embed(title="Başlık ve link", url="https://google.com", description="Açıklama", color=0x4dff4d)
-            embed.set_author(name=ctx.author.display_name, url="https://fredboat.com/dashboard", icon_url=ctx.author.avatar_url)
-            await ctx.send(embed=embed)
+            message = "Welcome to the server!"
+            embed = nextcord.Embed(title=message)
+            await user.send(embed=embed)
 
-    @commands.command(brief="Advanced embedded message test")
-    async def embedtest(self, ctx):
-        await config.allowMsg(ctx.message)
-        if config.allowMessages is True:
-            embed = nextcord.Embed(title="Başlık ve link", url="https://eglador.com", description="Açıklama", color=0x4dff4d)
-            # embed.set_author(name=ctx.author.display_name, url="https://fredboat.com/dashboard", icon_url=ctx.author.avatar_url)
-            embed.set_thumbnail(url="https://images.pexels.com/photos/2832432/pexels-photo-2832432.png?auto=compress&cs=tinysrgb&dpr=1&w=500")
-            embed.add_field(name="Alan 1", value="Minik açıklama", inline=True)
-            embed.add_field(name="Alan 2", value="Minik açıklama 2", inline=True)
-            embed.set_footer(text="Dipnot: aasddads")
-            await ctx.send(embed=embed)
-
+    @commands.command(pass_context=True)
+    @commands.has_permissions(manage_roles=True)
+    async def addRole(self, ctx, user: nextcord.Member, *, role: nextcord.Role):
+        if role in user.roles:
+            await ctx.send(f"{user.mention} already has the role, {role}")
+        else:
+            await user.add_roles(role)
+            await ctx.send(f"Added {role} to {user.mention}")
+    
     @commands.command(brief="Custom embedded message")
     async def customembed(self, ctx, Title=None, TitleUrl="https://title.link", Description=None,
                           ThumbnailUrl="https://thumbnail.link",
@@ -51,6 +49,8 @@ class Other(commands.Cog):
     async def on_reaction_remove(self, reaction, user):
         channel = reaction.message.channel
         print(f"{user.name} removed {reaction.emoji}")
+
+    """
 
 
 def setup(client):

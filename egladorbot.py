@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import nextcord
-from nextcord import Interaction
-from nextcord.ext import commands
+# from nextcord import Interaction
+# from nextcord.ext import commands
 from keys import *  # Bot & API Keys
 import config
 
@@ -14,25 +14,26 @@ import config
 # Bot Startup
 @config.client.event
 async def on_ready():
-    await config.client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=f"Itself. {config.commandPrefix}help"))
+    await config.client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=f"Migrating to slash commands"))
     print('Logged in as {0.user}'.format(config.client))
 
 
 if __name__ == '__main__':
-    config.load_extensions()
+    # config.load_extensions()
+    from cogs import *
 
 
-# Command error catch
-@config.client.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        await ctx.send("```You don't have permission to run this command```")
-    elif isinstance(error, commands.MissingRequiredArgument):
-        # await ctx.send('```Missing Argument.```')
-        pass
-    elif isinstance(error, commands.CommandNotFound):
-        await ctx.message.delete()
-        # await ctx.send(f"`There's no such command. Type {config.commandPrefix}help for all commands`")
+# # Command error catch
+# @config.client.event
+# async def on_command_error(ctx, error):
+#     if isinstance(error, commands.MissingPermissions):
+#         await ctx.send("```You don't have permission to run this command```")
+#     elif isinstance(error, commands.MissingRequiredArgument):
+#         # await ctx.send('```Missing Argument.```')
+#         pass
+#     elif isinstance(error, commands.CommandNotFound):
+#         await ctx.message.delete()
+#         # await ctx.send(f"`There's no such command. Type {config.commandPrefix}help for all commands`")
 
 
 config.client.run(TOKEN)
