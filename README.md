@@ -26,7 +26,7 @@ Twitch integration
 
 Economy
 
-      Coin flip
+      Coin flip = "base done"
       Guess
 
 -DONE-
@@ -37,3 +37,4 @@ Economy
     Playlist play
     Auto delete forbidden channel messages
     Auto delete unknown commands
+    Multiple keyword search is addded to "play" command
