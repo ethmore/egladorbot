@@ -103,14 +103,14 @@ class Player(commands.Cog):
                 await interaction.send(f'Connected to ``{channel}``')
 
                 voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
-                while voice.is_playing():  # Checks if voice is playing
-                    await asyncio.sleep(30)  # While it's playing it sleeps for 1 second
+                while voice.is_playing():
+                    await asyncio.sleep(30)
                 else:
-                    await asyncio.sleep(60)  # If it's not playing it waits 15 seconds
-                    while voice.is_playing():  # and checks once again if the bot is not playing
-                        break  # if it's playing it breaks
+                    await asyncio.sleep(60)
+                    while voice.is_playing():
+                        break
                     else:
-                        await voice.disconnect()  # if not it disconnects
+                        await voice.disconnect()
 
             else:
                 await interaction.send("Already connected to a voice channel")
@@ -139,7 +139,6 @@ class Player(commands.Cog):
             if voice is None:  # Bot not connected to a voice channel
                 await vc.connect()
                 await interaction.send(f'Connected to ``{vc}``')
-                # await interaction.response.send_message(f'Connected to ``{vc}``', ephemeral=False)
                 voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
 
             if input is not None:  # URL Parameter provided
@@ -240,14 +239,14 @@ class Player(commands.Cog):
                 else:
                     await interaction.send("Provide a link or keyword/s")
 
-            while voice.is_playing():  # Checks if voice is playing
-                await asyncio.sleep(1)  # While it's playing it sleeps for 1 second
+            while voice.is_playing():
+                await asyncio.sleep(1)
             else:
-                await asyncio.sleep(60)  # If it's not playing it waits 15 seconds
-                while voice.is_playing():  # and checks once again if the bot is not playing
-                    break  # if it's playing it breaks
+                await asyncio.sleep(60)
+                while voice.is_playing():
+                    break
                 else:
-                    await voice.disconnect()  # if not it disconnects
+                    await voice.disconnect()
 
         else:
             await interaction.send("Join a channel first")
@@ -293,7 +292,6 @@ class Player(commands.Cog):
 
         elif voice.is_playing():
             voice.stop()
-            # await interaction.guild.voice_client.disconnect(force=True)
             await interaction.send("Player is stopped")
 
         else:
@@ -329,14 +327,14 @@ class Player(commands.Cog):
                 await ctx.send(f'Connected to ``{channel}``')
                 voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-                while voice.is_playing():  # Checks if voice is playing
-                    await asyncio.sleep(30)  # While it's playing it sleeps for 1 second
+                while voice.is_playing():
+                    await asyncio.sleep(30)
                 else:
-                    await asyncio.sleep(60)  # If it's not playing it waits 15 seconds
-                    while voice.is_playing():  # and checks once again if the bot is not playing
-                        break  # if it's playing it breaks
+                    await asyncio.sleep(60)
+                    while voice.is_playing():
+                        break
                     else:
-                        await voice.disconnect()  # if not it disconnects
+                        await voice.disconnect()
 
     # Leave the voice channel
     @commands.command(brief="Disconnects from the voice channel", pass_context=True)
@@ -470,14 +468,14 @@ class Player(commands.Cog):
                     else:
                         await ctx.send("Provide a link or keyword/s")
 
-                while voice.is_playing():  # Checks if voice is playing
-                    await asyncio.sleep(1)  # While it's playing it sleeps for 1 second
+                while voice.is_playing():
+                    await asyncio.sleep(1)
                 else:
-                    await asyncio.sleep(60)  # If it's not playing it waits 15 seconds
-                    while voice.is_playing():  # and checks once again if the bot is not playing
-                        break  # if it's playing it breaks
+                    await asyncio.sleep(60)
+                    while voice.is_playing():
+                        break
                     else:
-                        await voice.disconnect()  # if not it disconnects
+                        await voice.disconnect()
 
             else:
                 await ctx.send("Join a channel first")
