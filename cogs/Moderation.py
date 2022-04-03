@@ -79,8 +79,11 @@ class Moderation(commands.Cog):
             forbidden_list_message += f"``{x['forbidden_word']}``, "
         forbidden_list_message = forbidden_list_message[:-2]
 
-        embeds = nextcord.Embed(title=forbidden_list_message, color=0x4dff4d)
-        await interaction.send(embed=embeds)
+        if forbidden_list_message:
+            embeds = nextcord.Embed(title=forbidden_list_message, color=0x4dff4d)
+            await interaction.send(embed=embeds)
+        else:
+            await interaction.send("There is no forbidden words")
 
     @nextcord.slash_command(name="forbidden_update", description="Updates an existing word", guild_ids=config.guildID)
     async def forbidden_update(self, interaction: Interaction, old_word, new_word):
