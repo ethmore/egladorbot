@@ -8,7 +8,8 @@ import os
 mongo_client = pymongo.MongoClient(f"mongodb+srv://{keys.db_name}:{keys.db_password}"
                                    f"@cluster0.za3ns.mongodb.net/eglador_bot_db?retryWrites=true&w=majority")
 bot_db = mongo_client["eglador_bot_db"]
-db_collection = bot_db["config"]
+db_config = bot_db["config"]
+db_forbidden = bot_db["forbidden_coll"]
 
 # ---- Globals ----
 commandPrefix = str(None)
@@ -23,7 +24,7 @@ guildID = [643857272216354866, 340277764907204608, 690613069826752573]  # IDs of
 allowMessages = False
 initialExtensions = []
 
-for x in db_collection.find({"_id": 1}):
+for x in db_config.find({"_id": 1}):
     print(x)
     commandPrefix = (x["prefix"])
     channelSelectivity = (x["channelSelectivity"])
@@ -75,7 +76,7 @@ async def update_bot_configs():
     global client
     global intents
 
-    for y in db_collection.find({"_id": 1}):
+    for y in db_config.find({"_id": 1}):
         print(y)
         commandPrefix = (y["prefix"])
         channelSelectivity = (y["channelSelectivity"])

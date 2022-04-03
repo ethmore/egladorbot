@@ -2,13 +2,13 @@
 A Discord bot for "Eglador" guild
 
 -TO-DO-
-
+    
+    Auto warn
     Auto kick/ban
     Member Greets
     Reaction/Emoji response
     Levelling
     Auto moderation
-    Forbidden words
     Timer / Scheduler
     Channel / Member counters
 
@@ -38,3 +38,5 @@ Economy
     Auto delete forbidden channel messages
     Auto delete unknown commands
     Multiple keyword search is addded to "play" command
+
+    Forbidden words
