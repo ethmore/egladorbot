@@ -25,12 +25,25 @@ class Moderation(commands.Cog):
 
         # Forbidden word detection
         guildID = message.guild.id
+        user_id = message.author.id
         split_message = message.content.split(" ")
         db_forbidden_words = config.db_forbidden.count_documents({"server_id": guildID, "forbidden_word": {"$in": split_message}})
 
         if message.author != self.client.user:
             if db_forbidden_words > 0:
-                await channel.send("That's forbidden!")
+                db_auto_warn_active = config.db_config.find_one({"server_id": guildID})
+
+                if db_auto_warn_active["server_auto_warn"] == "activate":
+                    user_warn_count = config.db_warn_counts.find_one({"server_id": guildID, "user_id": user_id})
+                    if not user_warn_count:
+                        config.db_warn_counts.insert_one({"server_id": guildID, "user_id": user_id, "warn_count": 1})
+                        await channel.send(f"That's forbidden! @{user_id} earned a warn")
+                    else:
+                        user_warn_count = user_warn_count["warn_count"] + 1
+                        config.db_warn_counts.find_one_and_update({"server_id": guildID, "user_id": user_id}, {"$set": {"warn_count": user_warn_count}})
+                        await channel.send(f"@{message.author} that makes {user_warn_count} warns. Better watch your words")
+                else:
+                    await channel.send("You shouldn't use that word but who cares")
         else:
             pass  # That's me!
 
@@ -95,6 +108,107 @@ class Moderation(commands.Cog):
             await interaction.send("Word is updated")
         else:
             await interaction.send(f"There is no such word as ``{old_word}`` in the list")
+
+    @nextcord.slash_command(name="auto_warn", description="Activates auto warn system by forbidden words", guild_ids=config.guildID)
+    async def auto_warn(self, interaction: Interaction, activate_deactivate):
+        guildID = interaction.guild_id
+        db_auto_warn_activated = config.db_config.find_one({"server_id": guildID})
+
+        if activate_deactivate == "activate":
+            if not db_auto_warn_activated:
+                config.db_config.insert_one({"server_id": guildID, "server_auto_warn": activate_deactivate})
+                await interaction.send("Auto warn system activated!")
+
+            else:
+                if db_auto_warn_activated["server_auto_warn"] == "activate":
+                    await interaction.send("Auto warn system is already activated.")
+                else:
+                    config.db_config.find_one_and_update({"server_id": guildID, "server_auto_warn": "deactivate"},
+                                                         {"$set": {"server_auto_warn": "activate"}})
+                    await interaction.send("Auto warn system activated.")
+                pass
+
+        elif activate_deactivate == "deactivate":
+            if not db_auto_warn_activated:
+                config.db_config.insert_one({"server_id": guildID, "server_auto_warn": activate_deactivate})
+                await interaction.send("Auto warn system deactivated!")
+                pass
+            else:
+                if db_auto_warn_activated["server_auto_warn"] == "deactivate":
+                    await interaction.send("Auto warn system is already deactivated.")
+                else:
+                    config.db_config.find_one_and_update({"server_id": guildID, "server_auto_warn": "activate"},
+                                                         {"$set": {"server_auto_warn": "deactivate"}})
+                    await interaction.send("Auto warn system deactivated.")
+                pass
+
+        else:
+            await interaction.send("Invalid argument. Use 'activate' or 'deactivate'")
+            return
+
+    @nextcord.slash_command(name="warn_add", description="Warn someone", guild_ids=config.guildID)
+    async def warn_add(self, interaction: Interaction, mention):
+        if mention.startswith("<@") and mention.endswith(">"):
+            guildID = interaction.guild_id
+            mention_id = int(mention[3:-1])
+            user = config.db_warn_counts.find_one({"server_id": guildID, "user_id": mention_id})
+            if not user:    # Add to db
+                config.db_warn_counts.insert_one({"server_id": guildID, "user_id": mention_id, "warn_count": 1})
+                await interaction.send("Warn added to the member. First warn")
+            else:   # Update db
+                warn_count = user["warn_count"] + 1
+                config.db_warn_counts.update_one({"server_id": guildID, "user_id": mention_id}, {"$set": {"warn_count": warn_count}})
+                await interaction.send("Warn added to the member")
+        else:
+            await interaction.send("Incorrect mention")
+
+    @nextcord.slash_command(name="warn_decrease", description="Decrease member's warn count by 1", guild_ids=config.guildID)
+    async def warn_decrease(self, interaction: Interaction, mention):
+        if mention.startswith("<@") and mention.endswith(">"):
+            guildID = interaction.guild_id
+            mention_id = int(mention[3:-1])
+            user = config.db_warn_counts.find_one({"server_id": guildID, "user_id": mention_id})
+            if not user:
+                await interaction.send("Member has no warns")
+            else:
+                if user["warn_count"] > 0:
+                    warn_count = user["warn_count"] - 1
+                    config.db_warn_counts.update_one({"server_id": guildID, "user_id": mention_id}, {"$set": {"warn_count": warn_count}})
+                    await interaction.send(f"Member's warn count decreased by 1. Member now has {warn_count} warn/s")
+                else:
+                    await interaction.send("Member has no warns")
+        else:
+            await interaction.send("Incorrect mention")
+
+    @nextcord.slash_command(name="warn_remove_all", description="Removes all warn mentioned member", guild_ids=config.guildID)
+    async def warn_remove_all(self, interaction: Interaction, mention):
+        if mention.startswith("<@") and mention.endswith(">"):
+            guildID = interaction.guild_id
+            mention_id = int(mention[3:-1])
+            user = config.db_warn_counts.find_one({"server_id": guildID, "user_id": mention_id})
+            if not user:
+                await interaction.send("Member has no warns")
+            else:
+                config.db_warn_counts.update_one({"server_id": guildID, "user_id": mention_id}, {"$set": {"warn_count": 0}})
+                await interaction.send("Member's all warns removed")
+        else:
+            await interaction.send("Incorrect mention")
+
+    @nextcord.slash_command(name="warn_count", description="Shows member's warn count", guild_ids=config.guildID)
+    async def get_warn_count(self, interaction: Interaction, mention):
+        if mention.startswith("<@") and mention.endswith(">"):
+            guildID = interaction.guild_id
+            mention_id = int(mention[3:-1])
+            user = config.db_warn_counts.find_one({"server_id": guildID, "user_id": mention_id})
+            if not user:
+                await interaction.send("Member has no warns")
+            else:
+                if user['warn_count'] == 0:
+                    await interaction.send("Member has no warns")
+                else:
+                    await interaction.send(f"Member has {user['warn_count']} warn/s")
+        else:
+            await interaction.send("Incorrect mention")
 
 
 def setup(client):

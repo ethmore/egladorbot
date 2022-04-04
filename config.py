@@ -10,6 +10,7 @@ mongo_client = pymongo.MongoClient(f"mongodb+srv://{keys.db_name}:{keys.db_passw
 bot_db = mongo_client["eglador_bot_db"]
 db_config = bot_db["config"]
 db_forbidden = bot_db["forbidden_coll"]
+db_warn_counts = bot_db["warn_counts"]
 
 # ---- Globals ----
 commandPrefix = str(None)
