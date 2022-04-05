@@ -11,7 +11,7 @@ A Discord bot for "Eglador" guild
   - Levelling
   - Timer / Scheduler
   - Channel / Member counters
-
+  - Auto delete interactions on forbidden channels
 
   - Follower counter
      - Instagram
@@ -28,6 +28,18 @@ A Discord bot for "Eglador" guild
 - Economy
      - Coin flip = "base done"
      - Guess
+
+
+- Auto Moderation
+  - Auto warn message delete
+  - Spam management
+  - Invite links
+  - External links
+  - Excessive capital letters
+  - Excessive emoji
+  - Temp ban 
+  - Timeout 
+
 
 ###DONE
 

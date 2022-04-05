@@ -1,7 +1,7 @@
-# import nextcord
+import nextcord
 from nextcord.ext import commands
-# from nextcord import Interaction
-# import config
+from nextcord import Interaction, SlashOption
+import config
 
 
 class Other(commands.Cog):
