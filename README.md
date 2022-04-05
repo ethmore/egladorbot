@@ -1,49 +1,56 @@
-# egladorbot
+egladorbot
+==========
+
 A Discord bot for "Eglador" guild
 
--TO-DO-
 
-    Member Greets
+### TODO
 
-    Reaction/Emoji response
+  - Member Greets
+  - Reaction/Emoji response
+  - Levelling
+  - Timer / Scheduler
+  - Channel / Member counters
 
-    Levelling
 
-    Auto moderation
-        Auto kick/ban
+  - Follower counter
+     - Instagram
+     - Reddit
+     - YouTube
+     - Twitter
 
-    Timer / Scheduler
+  
+  - Twitch integration
+     - Follower
+     - Stream
 
-    Channel / Member counters
+  
+- Economy
+     - Coin flip = "base done"
+     - Guess
 
-Follower counter
+###DONE
 
-       Instagram
-       Reddit
-       YouTube
-       Twitter
+- Player
+    
+    - Url play
+    - Search and play (Multiple keywords allowed)
+    - Playlist play
+    - Pause
+    - Resume
+    - Stop
+    - Skip
+    - Queue
+    
 
-Twitch integration
+- Auto delete messages on forbidden channel (for prefix commands)
+- Auto delete unknown commands (for prefix commands)
 
-    follower
-    stream
 
-Economy
+- Auto moderation
 
-      Coin flip = "base done"
-      Guess
-
--DONE-
-
-    Queue
-    Skip
-    YT search
-    Playlist play
-    Auto delete forbidden channel messages
-    Auto delete unknown commands
-    Multiple keyword search is addded to "play" command
-
-    Forbidden words
-
-    Auto moderation
-            Auto warn
+    - Forbidden words
+    - Auto warn
+    - Auto kick
+    - Auto ban
+    - Role exception

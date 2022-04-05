@@ -11,6 +11,7 @@ bot_db = mongo_client["eglador_bot_db"]
 db_config = bot_db["config"]
 db_forbidden = bot_db["forbidden_coll"]
 db_warn_counts = bot_db["warn_counts"]
+db_excluded_roles = bot_db["role_exceptions"]
 
 # ---- Globals ----
 commandPrefix = str(None)
