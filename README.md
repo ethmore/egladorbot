@@ -41,6 +41,14 @@ A Discord bot for "Eglador" guild
   - Timeout 
 
 
+- Player
+  - search (search first five)
+  - queue (list queue)
+  - loop
+  - forward / rewind
+
+
+
 ###DONE
 
 - Player

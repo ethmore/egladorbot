@@ -7,6 +7,8 @@ import os
 # ---- Database ----
 mongo_client = pymongo.MongoClient(f"mongodb+srv://{keys.db_name}:{keys.db_password}"
                                    f"@cluster0.za3ns.mongodb.net/eglador_bot_db?retryWrites=true&w=majority")
+print(mongo_client.test)
+
 bot_db = mongo_client["eglador_bot_db"]
 db_config = bot_db["config"]
 db_forbidden = bot_db["forbidden_coll"]

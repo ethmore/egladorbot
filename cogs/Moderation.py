@@ -68,7 +68,8 @@ class Moderation(commands.Cog):
 
     @nextcord.slash_command(name="test", description="Up Test", guild_ids=config.guildID)
     async def test(self, interaction: Interaction):
-        await interaction.send("Online")
+        await interaction.send("Online", delete_after=5)
+        pass
 
     # WIP - WIP - WIP - WIP - WIP - WIP
     @nextcord.slash_command(name="delete", description="[WIP] Deletes message", guild_ids=config.guildID)

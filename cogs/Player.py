@@ -1,20 +1,24 @@
 import nextcord
+import youtube_dl.utils
 from nextcord import Interaction
 from nextcord.ext import commands
 from youtube_dl import *
-from nextcord import FFmpegPCMAudio
 from youtubesearchpython import VideosSearch
 import config
 import asyncio
+import time
 
 queues = {}
 
 
-def checkQueue(ctx, id):
-    if queues[id]:
-        voice = ctx.guild.voice_client
-        source = queues[id].pop(0)
-        voice.play(source, after=lambda x=0: checkQueue(ctx, ctx.message.guild.id))
+def checkQueue(ctx, q_id):
+    try:
+        if queues[q_id]:
+            voice = ctx.guild.voice_client
+            source = queues[q_id].pop(0)
+            voice.play(source, after=lambda x=0: checkQueue(ctx, ctx.message.guild.id))
+    except KeyError:
+        pass
 
 
 """
@@ -130,8 +134,24 @@ class Player(commands.Cog):
     @nextcord.slash_command(name="play", description="Plays audio via given link or keywords", guild_ids=config.guildID)
     async def slash_play(self, interaction: Interaction, input):
         if interaction.user.voice.channel:
-            YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
+            YDL_OPTIONS = {'format': 'bestaudio/best',
+                           'noplaylist': True,
+                           'nocheckcertificate': True,
+                           'quiet': True,}
+            # YDL_OPTIONS = {'format': 'bestaudio/best',
+            #                'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+            #                'restrictfilenames': True,
+            #                'noplaylist': True,
+            #                'nocheckcertificate': True,
+            #                'ignoreerrors': False,
+            #                'logtostderr': False,
+            #                'quiet': False,
+            #                'no_warnings': True,
+            #                'default_search': 'auto',
+            #                'source_address': '0.0.0.0'
+            #                }
             FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+            # FFMPEG_OPTIONS = {'options': '-vn'}
 
             vc = interaction.user.voice.channel
             voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
@@ -141,103 +161,114 @@ class Player(commands.Cog):
                 await interaction.send(f'Connected to ``{vc}``')
                 voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
 
-            if input is not None:  # URL Parameter provided
-                if not input.startswith("https:"):
-                    videosSearch = VideosSearch(input, limit=1)
-                    res = videosSearch.result()
-                    input = res['result'][0]['link']
+            if not input.startswith("https:"):
+                videosSearch = VideosSearch(input, limit=1)
+                res = videosSearch.result()
+                input = res['result'][0]['link']
 
-                if not voice.is_playing():  # Bot connected to a voice channel but not playing.
+            if not voice.is_playing():  # Bot connected to a voice channel but not playing.
 
-                    if input.startswith("https://www.youtube.com/playlist?list"):  # If link belongs to a playlist
-                        audioCounter = 0
-                        YDL_OPTIONS = {'format': 'bestaudio', 'extract_flat': 'in_playlist'}
-                        with YoutubeDL(YDL_OPTIONS) as ydl:
-                            info = ydl.extract_info(input, download=False)
+                if input.startswith("https://www.youtube.com/playlist?list"):  # If link belongs to a playlist
+                    audioCounter = 0
+                    YDL_OPTIONS = {'format': 'bestaudio', 'extract_flat': 'in_playlist'}
+                    with YoutubeDL(YDL_OPTIONS) as ydl:
+                        info = ydl.extract_info(input, download=False)
 
-                        for entry in info['entries']:
-                            audioCounter += 1
-                            VidId = entry['id']
-                            input = f"https://www.youtube.com/watch?v={VidId}"
+                    for entry in info['entries']:
+                        audioCounter += 1
+                        VidId = entry['id']
+                        input = f"https://www.youtube.com/watch?v={VidId}"
 
-                            with YoutubeDL(YDL_OPTIONS) as ydl:
-                                info = ydl.extract_info(input, download=False)
-                            URL = info['formats'][0]['url']
-
-                            source = (FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-
-                            if not voice.is_playing():
-                                voice.play(source)
-                                voice.is_playing()
-
-                            guild_id = interaction.guild_id
-                            if guild_id in queues:
-                                queues[guild_id].append(source)
-                            else:
-                                queues[guild_id] = [source]
-                        await interaction.send(f"``{audioCounter}`` Audio added to the queue", delete_after=5)
-                        await interaction.delete_original_message(delay=10)
-
-                    else:
                         with YoutubeDL(YDL_OPTIONS) as ydl:
                             info = ydl.extract_info(input, download=False)
                         URL = info['formats'][0]['url']
-                        source = await nextcord.FFmpegOpusAudio.from_probe(URL, **FFMPEG_OPTIONS)
-                        voice.play(source, after=lambda x=None: checkQueue(interaction, interaction.guild_id))
-                        voice.is_playing()
-                        await interaction.send(f"Playing: ``{info.get('title')}``")
 
-                elif voice.is_playing():
+                        source = (nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
 
-                    if input.startswith("https://www.youtube.com/playlist?list"):
-                        YDL_OPTIONS = {'format': 'bestaudio', 'extract_flat': 'in_playlist'}  #
-                        audioCounter = 0
-
-                        with YoutubeDL(YDL_OPTIONS) as ydl:
-                            info = ydl.extract_info(input, download=False)
-
-                        for entry in info['entries']:
-                            audioCounter += 1
-                            VidId = entry['id']
-                            input = f"https://www.youtube.com/watch?v={VidId}"
-
-                            with YoutubeDL(YDL_OPTIONS) as ydl:
-                                info = ydl.extract_info(input, download=False)
-                            URL = info['formats'][0]['url']
-
-                            source = (FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-
-                            if not voice.is_playing():
-                                voice.play(source)
-                                voice.is_playing()
-
-                            guild_id = interaction.guild_id
-                            if guild_id in queues:
-                                queues[guild_id].append(source)
-                            else:
-                                queues[guild_id] = [source]
-                        await interaction.send(f"``{audioCounter}`` Audio added to the queue")
-
-                    else:
-                        # voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
-                        with YoutubeDL(YDL_OPTIONS) as ydl:
-                            info = ydl.extract_info(input, download=False)
-                        URL = info['formats'][0]['url']
-                        source = (FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                        if not voice.is_playing():
+                            voice.play(source)
+                            voice.is_playing()
 
                         guild_id = interaction.guild_id
                         if guild_id in queues:
                             queues[guild_id].append(source)
                         else:
                             queues[guild_id] = [source]
-                        await interaction.send(f"``{info.get('title')}`` Added to the queue")
+                    channel = self.client.get_channel(interaction.channel.id)
+                    await channel.send(f"``{audioCounter}`` Audio added to the queue", delete_after=5)
 
-            else:
-                if voice.is_paused():
-                    voice.resume()
-                    await interaction.send("Player resumed")
                 else:
-                    await interaction.send("Provide a link or keyword/s")
+                    try:
+                        localtime = time.localtime(time.time())
+                        print("Local current time :", localtime)
+
+                        with YoutubeDL(YDL_OPTIONS) as ydl:
+                            info = ydl.extract_info(input, download=False)
+                        URL = info['formats'][0]['url']
+                        source = await nextcord.FFmpegOpusAudio.from_probe(URL, **FFMPEG_OPTIONS)
+
+                        try:
+                            voice.play(source, after=lambda x=None: checkQueue(interaction, interaction.guild_id))
+                        except KeyError:
+                            pass
+                    except youtube_dl.utils.DownloadError as msg:
+                        await interaction.send(f"{msg}")
+                        pass
+
+                    localtime = time.localtime(time.time())
+                    print("Local current time :", localtime)
+                    voice.is_playing()
+                    try:
+                        await interaction.send(f"Playing: ``{info.get('title')}``")
+                    except nextcord.errors.NotFound:
+                        channel = self.client.get_channel(interaction.channel.id)
+                        await channel.send(f"Playing: ``{info.get('title')}``")
+
+            elif voice.is_playing():
+
+                if input.startswith("https://www.youtube.com/playlist?list"):
+                    YDL_OPTIONS = {'format': 'bestaudio', 'extract_flat': 'in_playlist'}  #
+                    audioCounter = 0
+
+                    with YoutubeDL(YDL_OPTIONS) as ydl:
+                        info = ydl.extract_info(input, download=False)
+
+                    for entry in info['entries']:
+                        audioCounter += 1
+                        VidId = entry['id']
+                        input = f"https://www.youtube.com/watch?v={VidId}"
+
+                        with YoutubeDL(YDL_OPTIONS) as ydl:
+                            info = ydl.extract_info(input, download=False)
+                        URL = info['formats'][0]['url']
+
+                        source = (nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+
+                        if not voice.is_playing():
+                            voice.play(source)
+                            voice.is_playing()
+
+                        guild_id = interaction.guild_id
+                        if guild_id in queues:
+                            queues[guild_id].append(source)
+                        else:
+                            queues[guild_id] = [source]
+                    channel = self.client.get_channel(interaction.channel.id)
+                    await channel.send(f"``{audioCounter}`` Audio added to the queue")
+
+                else:
+                    # voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+                    with YoutubeDL(YDL_OPTIONS) as ydl:
+                        info = ydl.extract_info(input, download=False)
+                    URL = info['formats'][0]['url']
+                    source = (nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+
+                    guild_id = interaction.guild_id
+                    if guild_id in queues:
+                        queues[guild_id].append(source)
+                    else:
+                        queues[guild_id] = [source]
+                    await interaction.send(f"``{info.get('title')}`` Added to the queue")
 
             while voice.is_playing():
                 await asyncio.sleep(1)
@@ -267,22 +298,32 @@ class Player(commands.Cog):
             voice.resume()
             await interaction.send("Player resumed")
         else:
-            await interaction.send("There's no audio that paused!")
+            await interaction.send("There's no audio paused!")
 
     @nextcord.slash_command(name="skip", description="Skips the current audio", guild_ids=config.guildID)
     async def slash_skip(self, interaction: Interaction):
         voice = nextcord.utils.get(self.client.voice_clients, guild=interaction.guild)
-        if voice.is_playing():
-            try:
-                voice.pause()
-                source = queues[interaction.guild_id].pop(0)
-                voice.play(source, after=lambda x=None: checkQueue(interaction, interaction.guild_id))
-                voice.is_playing()
-                await interaction.send("Audio skipped!")
-            except:
-                await interaction.send("Queue is empty!")
+        if voice is None:
+            await interaction.send("Bot is not in a voice channel")
         else:
-            await interaction.send("There's no audio playing!")
+            if voice.is_playing():
+                try:
+                    voice.pause()
+                    source = queues[interaction.guild_id].pop(0)
+                    voice.play(source, after=lambda x=None: checkQueue(interaction, interaction.guild_id))
+                    voice.is_playing()
+                    await interaction.send("Audio skipped!")
+                except IndexError:
+                    voice.stop()
+                    print("IndexError")
+                    await interaction.send("Queue is emptied!")
+                except KeyError:
+                    voice.stop()
+                    print("KeyError")
+                    await interaction.send("Queue is emptied!`")
+
+            else:
+                await interaction.send("There's no audio playing!")
 
     @nextcord.slash_command(name="stop", description="Stops the audio", guild_ids=config.guildID)
     async def slash_stop(self, interaction: Interaction):
@@ -291,6 +332,9 @@ class Player(commands.Cog):
             await interaction.send("Bot is not in a voice channel")
 
         elif voice.is_playing():
+            guild_id = interaction.guild_id
+            if guild_id in queues:
+                queues.pop(guild_id)
             voice.stop()
             await interaction.send("Player is stopped")
 
@@ -394,7 +438,7 @@ class Player(commands.Cog):
                                     info = ydl.extract_info(url, download=False)
                                 URL = info['formats'][0]['url']
 
-                                source = (FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                                source = (nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
 
                                 if not voice.is_playing():
                                     voice.play(source)
@@ -434,7 +478,7 @@ class Player(commands.Cog):
                                     info = ydl.extract_info(url, download=False)
                                 URL = info['formats'][0]['url']
 
-                                source = (FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                                source = (nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
 
                                 if not voice.is_playing():
                                     voice.play(source)
@@ -452,7 +496,7 @@ class Player(commands.Cog):
                             with YoutubeDL(YDL_OPTIONS) as ydl:
                                 info = ydl.extract_info(url, download=False)
                             URL = info['formats'][0]['url']
-                            source = (FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                            source = (nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
 
                             guild_id = ctx.message.guild.id
                             if guild_id in queues:
@@ -508,17 +552,25 @@ class Player(commands.Cog):
         await config.allowMsg(ctx.message)
         if config.allowMessages is True:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
-            if voice.is_playing():
-                try:
-                    voice.pause()
-                    source = queues[ctx.message.guild.id].pop(0)
-                    voice.play(source, after=lambda x=None: checkQueue(ctx, ctx.message.guild.id))
-                    voice.is_playing()
-                    await ctx.send("Audio skipped!")
-                except:
-                    await ctx.send("Queue is empty!")
+            if voice is None:
+                await ctx.send("Bot is not in a voice channel")
             else:
-                await ctx.send("There's no audio playing!")
+                if voice.is_playing():
+                    try:
+                        voice.pause()
+                        source = queues[ctx.message.guild.id].pop(0)
+                        voice.play(source, after=lambda x=None: checkQueue(ctx, ctx.message.guild.id))
+                        voice.is_playing()
+                        await ctx.send("Audio skipped!")
+                    except IndexError:
+                        voice.stop()
+                        await ctx.send("Queue is emptied!")
+                    except KeyError:
+                        voice.stop()
+                        await ctx.send("Queue is emptied!`")
+
+                else:
+                    await ctx.send("There's no audio playing!")
 
     # Stops the player
     @commands.command(brief="Stops the audio")
