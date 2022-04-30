@@ -3,8 +3,34 @@ egladorbot
 
 A Discord bot for "Eglador" guild
 
+## Features
 
-### TODO
+- Player
+    
+    - Url play
+    - Search and play (Multiple keywords allowed)
+    - Playlist play
+    - Pause
+    - Resume
+    - Stop
+    - Skip
+    - Queue
+    
+
+- Auto delete messages on forbidden channel (for prefix commands)
+- Auto delete unknown commands (for prefix commands)
+
+
+- Auto moderation
+
+    - Forbidden words
+    - Auto warn
+    - Auto kick
+    - Auto ban
+    - Role exception
+
+
+## TODO
 
   - Member Greets
   - Reaction/Emoji response
@@ -46,31 +72,3 @@ A Discord bot for "Eglador" guild
   - queue (list queue)
   - loop
   - forward / rewind
-
-
-
-###DONE
-
-- Player
-    
-    - Url play
-    - Search and play (Multiple keywords allowed)
-    - Playlist play
-    - Pause
-    - Resume
-    - Stop
-    - Skip
-    - Queue
-    
-
-- Auto delete messages on forbidden channel (for prefix commands)
-- Auto delete unknown commands (for prefix commands)
-
-
-- Auto moderation
-
-    - Forbidden words
-    - Auto warn
-    - Auto kick
-    - Auto ban
-    - Role exception
