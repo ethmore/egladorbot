@@ -8,7 +8,7 @@ A Discord bot for "Eglador" guild
 - Player
     
     - Url play
-    - Search and play (Multiple keywords allowed)
+    - Search and play (With keywords)
     - Playlist play
     - Pause
     - Resume
@@ -30,7 +30,7 @@ A Discord bot for "Eglador" guild
     - Role exception
 
 
-## TODO
+## Features will be added
 
   - Member Greets
   - Reaction/Emoji response
@@ -50,11 +50,6 @@ A Discord bot for "Eglador" guild
      - Follower
      - Stream
 
-  
-- Economy
-     - Coin flip = "base done"
-     - Guess
-
 
 - Auto Moderation
   - Auto warn message delete
@@ -68,7 +63,5 @@ A Discord bot for "Eglador" guild
 
 
 - Player
-  - search (search first five)
-  - queue (list queue)
   - loop
   - forward / rewind
